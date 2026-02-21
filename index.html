@@ -496,7 +496,7 @@ body {
   padding: 6px 8px;
   font-family: 'Space Mono', monospace;
   font-size: 10px; color: var(--text);
-  white-space: nowrap;
+  width: 72px;
   background: var(--surface2);
 }
 .matrix-table tr:last-child td { border-bottom: none; }
@@ -967,7 +967,7 @@ function renderMatrix(){
   // ボディ
   let tbody = '<tbody>';
   SECTIONS.forEach(sec => {
-    tbody += `<tr><td class="sec-td">S${String(sec.id).padStart(2,'0')} ${sec.range}</td>`;
+    tbody += `<tr><td class="sec-td">S${String(sec.id).padStart(2,'0')}<br><span style="font-size:8px;color:var(--muted)">${sec.range}</span></td>`;
 
     const vals = cools.map(c => getRec(c, sec.id));
 
