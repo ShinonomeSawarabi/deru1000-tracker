@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>でる1000 トラッカー</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -334,6 +337,14 @@ body {
   cursor:pointer; transition:opacity 0.12s;
 }
 .btn-save:hover { opacity:0.82; }
+.btn-import-label {
+  display:block; width:100%; box-sizing:border-box;
+  background:none; border:1px solid var(--border); color:var(--text);
+  border-radius:3px; padding:10px;
+  font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:1px;
+  cursor:pointer; transition:opacity 0.12s; text-align:center;
+}
+.btn-import-label:hover { opacity:0.72; }
 .btn-clear {
   background:none; border:1px solid var(--border); color:var(--muted);
   border-radius:3px; padding:8px 14px;
@@ -720,10 +731,17 @@ body {
 
       <div class="analysis-card" style="margin-top:16px;">
         <div class="analysis-card-header">
-          <span>その他の設定</span>
+          <span>データ管理</span>
         </div>
-        <div style="padding:32px;text-align:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);">
-          今後追加予定
+        <div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
+          <button class="btn-save" style="width:100%;font-size:13px;padding:10px;box-sizing:border-box;" onclick="exportData()">⬇ バックアップをダウンロード（JSON）</button>
+          <label style="display:block;">
+            <div class="btn-import-label">⬆ バックアップから取り込む</div>
+            <input type="file" accept=".json,application/json" style="display:none;" onchange="importData(this)">
+          </label>
+        </div>
+        <div style="padding:0 12px 12px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);line-height:1.6;">
+          全クールのデータをJSONファイルとして保存・復元できます。
         </div>
       </div>
 
@@ -789,6 +807,60 @@ let openSec = null;
 
 function rk(cool,sid){ return `c${cool}_s${sid}`; }
 function getRec(cool,sid){ return db.records[rk(cool,sid)]||null; }
+
+// ============================================================
+// データ管理（エクスポート・インポート）
+// ============================================================
+function exportData(){
+  const json = JSON.stringify(db, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `deru1000_backup_${today}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(input){
+  const file = input.files[0];
+  if(!file){ return; }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      const data = JSON.parse(e.target.result);
+      if(!Array.isArray(data.cools) || typeof data.records !== 'object'){
+        alert('有効なバックアップファイルではありません。');
+        input.value = '';
+        return;
+      }
+      const coolCount = data.cools.length;
+      const recCount = Object.keys(data.records).length;
+      if(!confirm(`${coolCount}クール・${recCount}件のレコードを取り込みます。\n現在のデータはすべて上書きされます。よろしいですか？`)){
+        input.value = '';
+        return;
+      }
+      db = {
+        cools: data.cools,
+        currentCool: data.cools.includes(data.currentCool) ? data.currentCool : data.cools[0],
+        records: data.records,
+        navCollapsed: data.navCollapsed || false
+      };
+      saveDB();
+      openSec = null;
+      renderAll();
+      input.value = '';
+      alert(`取り込み完了：${coolCount}クール・${recCount}件`);
+    } catch(err){
+      alert('ファイルの読み込みに失敗しました。');
+      input.value = '';
+    }
+  };
+  reader.readAsText(file);
+}
 
 // ============================================================
 // クール操作
