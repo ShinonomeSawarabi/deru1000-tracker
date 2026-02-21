@@ -485,7 +485,7 @@ body {
   text-align: center;
   white-space: nowrap;
 }
-.matrix-table th.sec-th { text-align: left; min-width: 70px; }
+.matrix-table th.sec-th { text-align: left; width: 42px; }
 .matrix-table td {
   padding: 0;
   border-bottom: 1px solid var(--border);
@@ -496,7 +496,7 @@ body {
   padding: 6px 8px;
   font-family: 'Space Mono', monospace;
   font-size: 10px; color: var(--text);
-  width: 72px;
+  width: 42px;
   background: var(--surface2);
 }
 .matrix-table tr:last-child td { border-bottom: none; }
@@ -959,15 +959,15 @@ function renderMatrix(){
   const cools = db.cools;
 
   // ヘッダー行
-  let thead = '<thead><tr><th class="sec-th">SECTION</th>';
-  cools.forEach(c => { thead += `<th>COOL ${c}</th>`; });
+  let thead = '<thead><tr><th class="sec-th">SEC</th>';
+  cools.forEach(c => { thead += `<th>C${c}</th>`; });
   if(cools.length > 1) thead += '<th>TREND</th>';
   thead += '</tr></thead>';
 
   // ボディ
   let tbody = '<tbody>';
   SECTIONS.forEach(sec => {
-    tbody += `<tr><td class="sec-td">S${String(sec.id).padStart(2,'0')}<br><span style="font-size:8px;color:var(--muted)">${sec.range}</span></td>`;
+    tbody += `<tr><td class="sec-td">S${String(sec.id).padStart(2,'0')}</td>`;
 
     const vals = cools.map(c => getRec(c, sec.id));
 
