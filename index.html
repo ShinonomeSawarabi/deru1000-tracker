@@ -540,11 +540,15 @@ body {
   padding: 10px;
   text-align: center;
 }
+.cell-tim {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 12px;
+  color: var(--accent2);
+  line-height: 1;
+}
 
-/* トレンド矢印 */
-.trend-up   { color: var(--accent2); font-size: 10px; }
-.trend-down { color: var(--danger);  font-size: 10px; }
-.trend-flat { color: var(--muted);   font-size: 10px; }
+/* トレンドアイコン */
+.trend-icon { display: flex; align-items: center; justify-content: center; }
 
 /* 凡例 */
 .legend {
@@ -554,7 +558,7 @@ body {
 }
 .legend-item { display: flex; align-items: center; gap: 6px; color: var(--muted); }
 .legend-dot-err { width:8px; height:8px; border-radius:2px; background:var(--danger); flex-shrink:0; }
-.legend-dot-rem { width:8px; height:8px; border-radius:2px; background:var(--accent); flex-shrink:0; }
+.legend-dot-tim { width:8px; height:8px; border-radius:2px; background:var(--accent2); flex-shrink:0; }
 
 /* ===== CUSTOM DIALOG ===== */
 .dialog-overlay {
@@ -703,14 +707,14 @@ body {
       <div class="analysis-card">
         <div class="analysis-card-header">
           <span>クール別推移 — 全セクション</span>
-          <span style="color:var(--muted)">上段: 誤答数　下段: 最終残誤答</span>
+          <span style="color:var(--muted)">上段: 誤答数　下段: 所要時間</span>
         </div>
         <div class="matrix-scroll">
           <table class="matrix-table" id="matrix-table"></table>
         </div>
         <div class="legend">
           <div class="legend-item"><div class="legend-dot-err"></div>誤答数</div>
-          <div class="legend-item"><div class="legend-dot-rem"></div>最終残誤答数</div>
+          <div class="legend-item"><div class="legend-dot-tim"></div>所要時間</div>
         </div>
       </div>
 
@@ -1048,23 +1052,42 @@ function renderMatrix(){
         tbody += `<td><div class="cell-empty">—</div></td>`;
       } else {
         const e = (rec.errors!==''&&rec.errors!=null) ? rec.errors : '—';
-        const r = (rec.remaining!==''&&rec.remaining!=null) ? rec.remaining : '—';
-        tbody += `<td><div class="cell-pair"><span class="cell-err">${e}</span><span class="cell-rem">${r}</span></div></td>`;
+        const t = (rec.time!==''&&rec.time!=null) ? rec.time : '—';
+        tbody += `<td><div class="cell-pair"><span class="cell-err">${e}</span><span class="cell-tim">${t}</span></div></td>`;
       }
     });
 
     // トレンド列（2クール以上あるとき）
     if(cools.length > 1){
-      const first = vals.find(v=>v&&v.errors!==''&&v.errors!=null);
-      const last  = [...vals].reverse().find(v=>v&&v.errors!==''&&v.errors!=null);
-      let trend = `<span class="trend-flat">—</span>`;
-      if(first && last && first !== last){
-        const fe = Number(first.errors), le = Number(last.errors);
-        if(le < fe)       trend = `<span class="trend-up">▼ ${fe-le}</span>`;
-        else if(le > fe)  trend = `<span class="trend-down">▲ ${le-fe}</span>`;
-        else              trend = `<span class="trend-flat">= 0</span>`;
+      // 記録あり かつ 誤答が有効な値のものを抽出
+      const recorded = vals.map((rec,i)=>({rec,cool:cools[i]}))
+        .filter(({rec})=>rec&&rec.errors!==''&&rec.errors!=null);
+
+      let trendIcon = '';
+
+      if(recorded.length >= 1){
+        const lastErrors = Number(recorded[recorded.length-1].rec.errors);
+
+        if(lastErrors === 0){
+          // 完答（誤答ゼロ）
+          trendIcon = `<div class="trend-icon"><svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><title>完答</title><polygon points="11,2 13.5,8.5 20.5,9 15.5,13.5 17.2,20.5 11,17 4.8,20.5 6.5,13.5 1.5,9 8.5,8.5" fill="#e8c547"/></svg></div>`;
+        } else if(recorded.length >= 2){
+          const prevErrors = Number(recorded[recorded.length-2].rec.errors);
+          if(lastErrors < prevErrors){
+            // 誤答減少
+            trendIcon = `<div class="trend-icon"><svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><title>誤答減少</title><path d="M11 4 L11 18 M5 12 L11 18 L17 12" stroke="#5bc8af" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>`;
+          } else if(lastErrors > prevErrors){
+            // 誤答増加
+            trendIcon = `<div class="trend-icon"><svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><title>誤答増加</title><path d="M11 18 L11 4 M5 10 L11 4 L17 10" stroke="#e05c5c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>`;
+          } else {
+            // 変化なし
+            trendIcon = `<div class="trend-icon"><svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><title>変化なし</title><line x1="4" y1="9" x2="18" y2="9" stroke="#b8b8e8" stroke-width="2.5" stroke-linecap="round"/><line x1="4" y1="13" x2="18" y2="13" stroke="#b8b8e8" stroke-width="2.5" stroke-linecap="round"/></svg></div>`;
+          }
+        }
+        // recorded.length === 1 かつ errors != 0 → 判断不可（trendIconは空）
       }
-      tbody += `<td style="text-align:center;padding:8px">${trend}</td>`;
+
+      tbody += `<td style="text-align:center;padding:8px">${trendIcon}</td>`;
     }
 
     tbody += '</tr>';
@@ -1073,17 +1096,15 @@ function renderMatrix(){
   // 合計行
   tbody += `<tr style="background:var(--surface2)"><td class="sec-td" style="color:var(--accent);font-weight:700">TOTAL AVG</td>`;
   cools.forEach(c => {
-    let errs=0, ec=0, rems=0, rc=0;
+    let errs=0, ec=0;
     SECTIONS.forEach(sec=>{
       const r=getRec(c,sec.id);
       if(r){
         if(r.errors!==''&&r.errors!=null){errs+=Number(r.errors);ec++;}
-        if(r.remaining!==''&&r.remaining!=null){rems+=Number(r.remaining);rc++;}
       }
     });
     const ae = ec>0?(errs/ec).toFixed(1):'—';
-    const ar = rc>0?(rems/rc).toFixed(1):'—';
-    tbody += `<td><div class="cell-pair"><span class="cell-err" style="font-size:13px">${ae}</span><span class="cell-rem" style="font-size:11px">${ar}</span></div></td>`;
+    tbody += `<td><div class="cell-pair"><span class="cell-err" style="font-size:13px">${ae}</span><span class="cell-tim" style="font-size:10px">—</span></div></td>`;
   });
   if(cools.length>1) tbody += '<td></td>';
   tbody += '</tr></tbody>';
