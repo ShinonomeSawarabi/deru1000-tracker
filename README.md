@@ -5,7 +5,7 @@
 TOEIC対策問題集「でる1000問」の演習記録を管理するWebアプリです。
 ブラウザだけで動作し、インストール不要で使えます。
 
-🔗 **[アプリを開く](https://esawarabi.github.io/deru1000-tracker/)**
+🔗 **[アプリを開く](https://shinonomesawarabi.github.io/deru1000-tracker/)**
 
 ---
 
