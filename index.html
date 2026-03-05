@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>でる1000 トラッカー</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── ライトモード強制 ── */
+:root, html, body {
+  color-scheme: light only;
+}
+:root {
+  --bg:         #f4f2ed;
+  --surface:    #ffffff;
+  --surface2:   #f7f5f1;
+  --surface3:   #eeebe4;
+  --border:     #e2ddd6;
+  --border2:    #d0cbc2;
+  --text:       #1c1a16;
+  --text2:      #6b6760;
+  --text3:      #a09c96;
+  --accent:     #2a5caa;
+  --accent-bg:  #eef2fb;
+  --green:      #2e7d52;
+  --green-bg:   #e8f5ee;
+  --orange:     #c96a00;
+  --red:        #c0392b;
+  --red-bg:     #fdecea;
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.07);
+  --shadow:     0 2px 10px rgba(0,0,0,0.08);
+  --shadow-md:  0 6px 20px rgba(0,0,0,0.10);
+  --r:          10px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--bg); }
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 300;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text3);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-btn.active { color: var(--accent); }
+.nav-btn svg { width: 22px; height: 22px; }
+
+/* ── Header ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: var(--shadow-sm);
+}
+.header-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.header-stats {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  justify-content: center;
+}
+.hstat { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.hstat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+.hstat-val.red { color: var(--red); }
+.hstat-label { font-size: 9px; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ── Screens ── */
+.screen { display: none; padding: 16px 16px 80px; }
+.screen.active { display: block; }
+
+/* ── Round pill at top of sections screen ── */
+.round-pill-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.round-pill-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+.round-pill-prog {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex: 1;
+  margin-left: 16px;
+}
+.progress-bar {
+  width: 100%;
+  height: 5px;
+  background: var(--surface3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #5b84d4);
+  border-radius: 3px;
+  transition: width 0.4s;
+}
+.progress-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+/* ── Section cards ── */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s;
+}
+.section-card.open {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border2);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  padding: 13px 14px;
+  cursor: pointer;
+  gap: 10px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.sdot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--border2);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.sdot.done    { background: var(--green); }
+.sdot.partial { background: var(--orange); }
+
+.scode {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  min-width: 32px;
+}
+.srange {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+.ssummary {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.ssum-item { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.ssum-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+.ssum-val.red   { color: var(--red); }
+.ssum-val.green { color: var(--green); }
+.ssum-val.sm    { font-size: 11px; }
+.ssum-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+.schevron {
+  font-size: 10px;
+  color: var(--text3);
+  transition: transform 0.2s;
+  margin-left: 4px;
+}
+.section-card.open .schevron { transform: rotate(180deg); }
+
+/* ── Completed checkbox ── */
+.check-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.check-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--border2);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.check-box:active { transform: scale(0.88); }
+.check-box.checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+.check-box svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.check-box.checked svg { opacity: 1; }
+.section-card.completed .section-header { background: var(--green-bg); }
+.section-card.completed .srange { color: var(--green); }
+
+/* Section body */
+.section-body {
+  display: none;
+  border-top: 1px solid var(--border);
+  padding: 16px 14px;
+  background: var(--surface);
+}
+.section-card.open .section-body { display: block; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+  margin-bottom: 14px;
+}
+.form-field { display: flex; flex-direction: column; gap: 5px; }
+.form-label {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.form-input {
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: 'DM Mono', monospace;
+  color: var(--text);
+  background: var(--surface);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(42,92,170,0.12);
+}
+.save-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.save-btn:active { transform: scale(0.98); }
+
+.status-msg {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 10px;
+}
+.status-msg.saved { color: var(--green); }
+
+.history-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.history-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 11px;
+}
+.hchip-round { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); }
+.hchip-err   { font-family: 'DM Mono', monospace; font-weight: 700; color: var(--red); }
+.hchip-rem   { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); }
+.hchip-date  { font-size: 10px; color: var(--text3); }
+
+/* ── Settings screen ── */
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.settings-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  background: var(--surface2);
+}
+
+.round-list { display: flex; flex-direction: column; }
+.round-row {
+  display: flex;
+  align-items: center;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.round-row:last-child { border-bottom: none; }
+.round-row.active-round { background: var(--accent-bg); }
+
+.round-row-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text3);
+  min-width: 20px;
+}
+.round-row-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+.round-row-name.is-active { color: var(--accent); }
+.round-row-stats {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text3);
+  text-align: right;
+}
+.round-row-actions { display: flex; gap: 6px; }
+
+.btn-sm {
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text2);
+  transition: all 0.12s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-sm:hover, .btn-sm:active { background: var(--surface3); }
+.btn-sm.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-sm.danger  { color: var(--red); border-color: var(--border); }
+.btn-sm.danger:hover { background: var(--red-bg); border-color: var(--red); }
+
+.add-round-row {
+  padding: 12px 16px;
+}
+.btn-add-round {
+  width: 100%;
+  padding: 10px;
+  border: 1.5px dashed var(--border2);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text3);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: 'Noto Sans JP', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-add-round:hover, .btn-add-round:active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* Active badge */
+.active-badge {
+  font-size: 10px;
+  background: var(--accent);
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* Settings info rows */
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row-label { color: var(--text2); }
+.info-row-value { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--text); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--text);
+  color: #fff;
+  padding: 9px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: all 0.2s;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.ok   { background: var(--green); }
+
+/* Page title */
+.page-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 14px;
+}
+
+/* Prevent any system dark mode */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: light; }
+  html, body { background: #f4f2ed !important; color: #1c1a16 !important; }
+  input, button { background: #fff !important; color: #1c1a16 !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-logo">でる1000 tracker</div>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-val" id="hDone">0</div>
+      <div class="hstat-label">DONE/<span id="hTotal">15</span></div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val red" id="hAvgErr">—</div>
+      <div class="hstat-label">AVG ERR</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="hAvgRem">—</div>
+      <div class="hstat-label">AVG REM</div>
+    </div>
+  </div>
+  <button class="btn-sm primary" onclick="saveAll()" style="flex-shrink:0">💾 保存</button>
+</header>
+
+<!-- Screen: Sections -->
+<div class="screen active" id="screen-sections">
+  <!-- Round info bar -->
+  <div class="round-pill-bar">
+    <div class="round-pill-name" id="rpName">第1周</div>
+    <div class="round-pill-prog">
+      <div class="progress-bar"><div class="progress-fill" id="rpFill" style="width:0%"></div></div>
+      <div class="progress-label" id="rpLabel">0 / 15 完了</div>
+    </div>
+  </div>
+
+  <!-- Section cards -->
+  <div id="sectionsGrid"></div>
+</div>
+
+<!-- Screen: Settings -->
+<div class="screen" id="screen-settings">
+  <div class="page-title">設定</div>
+
+  <div class="settings-section">
+    <div class="settings-header">周回管理</div>
+    <div class="round-list" id="roundList"></div>
+    <div class="add-round-row">
+      <button class="btn-add-round" onclick="addRound()">＋ 新しい周回を追加</button>
+    </div>
+  </div>
+
+  <div class="settings-section" id="statsSection">
+    <div class="settings-header">現在の周回 — 統計</div>
+    <div id="statsRows"></div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-header">データ</div>
+    <div class="info-row">
+      <span class="info-row-label">全データを保存</span>
+      <button class="btn-sm primary" onclick="saveAll()">保存</button>
+    </div>
+    <div class="info-row">
+      <span class="info-row-label">全データをリセット</span>
+      <button class="btn-sm danger" onclick="resetAll()">リセット</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-sections" onclick="showScreen('sections')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+      <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+    </svg>
+    SECTIONS
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="showScreen('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+    SETTINGS
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SECTIONS = [
+  { code:'S01', range:'3〜45' },   { code:'S02', range:'46〜88' },
+  { code:'S03', range:'89〜131' }, { code:'S04', range:'132〜174' },
+  { code:'S05', range:'175〜217' },{ code:'S06', range:'218〜260' },
+  { code:'S07', range:'261〜303' },{ code:'S08', range:'304〜349' },
+  { code:'S09', range:'350〜393' },{ code:'S10', range:'394〜436' },
+  { code:'S11', range:'438〜480' },{ code:'S12', range:'481〜524' },
+  { code:'S13', range:'525〜569' },{ code:'S14', range:'570〜613' },
+  { code:'S15', range:'614〜659' },
+];
+
+let state = {
+  rounds: [{ id:1, name:'第1周', records:{} }],
+  currentRound: 0,
+  openSection: null,
+  currentScreen: 'sections',
+};
+
+// ─── Persist ───
+function saveAll() {
+  try {
+    localStorage.setItem('d1k_v3', JSON.stringify(state));
+    showToast('保存しました', true);
+  } catch(e) { showToast('保存に失敗しました'); }
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem('d1k_v3');
+    if (s) state = JSON.parse(s);
+  } catch(e) {}
+}
+function resetAll() {
+  if (!confirm('全データを削除しますか？この操作は取り消せません。')) return;
+  localStorage.removeItem('d1k_v3');
+  state = { rounds:[{id:1,name:'第1周',records:{}}], currentRound:0, openSection:null, currentScreen:'sections' };
+  renderAll();
+  showToast('リセットしました');
+}
+
+// ─── Helpers ───
+function today() { return new Date().toISOString().slice(0,10); }
+function getRec(ri, code) { return state.rounds[ri]?.records?.[code] || null; }
+
+function getRoundStats(ri) {
+  const recs = Object.values(state.rounds[ri]?.records || {});
+  const done = recs.filter(r => r.completed).length;
+  const recorded = recs.length;
+  const total = SECTIONS.length;
+  const avgErr = recorded > 0 ? (recs.reduce((a,r)=>a+(r.err||0),0)/recorded).toFixed(1) : null;
+  const avgRem = recorded > 0 ? (recs.reduce((a,r)=>a+(r.rem||0),0)/recorded).toFixed(1) : null;
+  return { done, total, avgErr, avgRem };
+}
+
+function dotCls(code) {
+  const rec = getRec(state.currentRound, code);
+  if (!rec) return '';
+  return rec.rem === 0 ? 'done' : 'partial';
+}
+
+function isCompleted(code) {
+  return !!getRec(state.currentRound, code)?.completed;
+}
+
+function toggleComplete(code, e) {
+  e.stopPropagation();
+  const round = state.rounds[state.currentRound];
+  if (!round.records) round.records = {};
+  if (!round.records[code]) {
+    // 記録なしでチェックした場合、今日の日付で空レコードを作成
+    round.records[code] = { date: today(), err: 0, time: '', rem: 0, completed: true };
+  } else {
+    round.records[code].completed = !round.records[code].completed;
+  }
+  saveAll();
+  renderAll();
+  state.openSection = state.openSection; // keep open state
+  renderAll();
+}
+
+// ─── Round management ───
+function addRound() {
+  const n = state.rounds.length + 1;
+  state.rounds.push({ id: Date.now(), name: `第${n}周`, records: {} });
+  state.currentRound = state.rounds.length - 1;
+  state.openSection = null;
+  saveAll();
+  renderAll();
+}
+function selectRound(idx) {
+  state.currentRound = idx;
+  state.openSection = null;
+  showScreen('sections');
+}
+function deleteRound(idx) {
+  if (state.rounds.length <= 1) { showToast('最後の周回は削除できません'); return; }
+  state.rounds.splice(idx, 1);
+  if (state.currentRound >= state.rounds.length) state.currentRound = state.rounds.length - 1;
+  state.openSection = null;
+  saveAll();
+  renderAll();
+  renderSettings();
+}
+
+// ─── Section record ───
+function saveRecord(code) {
+  const round = state.rounds[state.currentRound];
+  if (!round.records) round.records = {};
+  const prevCompleted = round.records[code]?.completed || false;
+  round.records[code] = {
+    date: document.getElementById(`d-${code}`).value,
+    err:  parseInt(document.getElementById(`e-${code}`).value) || 0,
+    time: document.getElementById(`t-${code}`).value,
+    rem:  parseInt(document.getElementById(`r-${code}`).value) || 0,
+    completed: prevCompleted,
+  };
+  saveAll();
+  renderAll();
+  state.openSection = code;
+  renderAll();
+}
+
+// ─── Screen navigation ───
+function showScreen(name) {
+  state.currentScreen = name;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'settings') renderSettings();
+}
+
+function toggleSection(code) {
+  state.openSection = state.openSection === code ? null : code;
+  renderSections();
+  renderSectionNav_inSettings();
+  if (state.openSection) {
+    setTimeout(() => {
+      const el = document.getElementById(`card-${code}`);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }, 60);
+  }
+}
+
+// ─── Render: Header ───
+function renderHeader() {
+  const { done, total, avgErr, avgRem } = getRoundStats(state.currentRound);
+  document.getElementById('hDone').textContent = done;
+  document.getElementById('hTotal').textContent = total;
+  document.getElementById('hAvgErr').textContent = avgErr ?? '—';
+  document.getElementById('hAvgRem').textContent = avgRem ?? '—';
+}
+
+// ─── Render: Round pill ───
+function renderRoundPill() {
+  const { done, total } = getRoundStats(state.currentRound);
+  document.getElementById('rpName').textContent = state.rounds[state.currentRound]?.name || '';
+  const pct = Math.round(done / total * 100);
+  document.getElementById('rpFill').style.width = pct + '%';
+  document.getElementById('rpLabel').textContent = `${done} / ${total} 完了`;
+}
+
+// ─── Render: Sections ───
+function renderSections() {
+  const grid = document.getElementById('sectionsGrid');
+  grid.innerHTML = SECTIONS.map(s => {
+    const rec = getRec(state.currentRound, s.code);
+    const isOpen = state.openSection === s.code;
+    const dc = dotCls(s.code);
+
+    const errDisp  = rec != null
+      ? `<span class="ssum-val red">${rec.err}</span>`
+      : `<span class="ssum-val" style="color:var(--text3)">—</span>`;
+    const remDisp  = rec != null
+      ? `<span class="ssum-val ${rec.rem===0?'green':''}">${rec.rem}</span>`
+      : `<span class="ssum-val" style="color:var(--text3)">—</span>`;
+    const timeDisp = rec?.time || '—';
+
+    // Past rounds history
+    const history = state.rounds.map((rnd, ri) => {
+      if (ri === state.currentRound) return '';
+      const r = rnd.records?.[s.code];
+      if (!r) return '';
+      return `<div class="history-chip">
+        <span class="hchip-round">${rnd.name}</span>
+        <span class="hchip-err">✗${r.err}</span>
+        <span class="hchip-rem">→${r.rem}</span>
+        ${r.date ? `<span class="hchip-date">${r.date}</span>` : ''}
+      </div>`;
+    }).join('');
+
+    const statusMsg = rec
+      ? `<div class="status-msg saved">✓ 記録済 — ${rec.date || ''}</div>`
+      : `<div class="status-msg">未記録 — SAVEで保存</div>`;
+
+    return `
+    <div class="section-card ${isOpen?'open':''} ${isCompleted(s.code)?'completed':''}" id="card-${s.code}">
+      <div class="section-header" onclick="toggleSection('${s.code}')">
+        <div class="check-wrap" onclick="toggleComplete('${s.code}', event)">
+          <div class="check-box ${isCompleted(s.code)?'checked':''}">
+            <svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="2,6 5,9 10,3"/>
+            </svg>
+          </div>
+        </div>
+        <span class="scode">${s.code}</span>
+        <span class="srange">${s.range}</span>
+        <div class="ssummary">
+          <div class="ssum-item">${errDisp}<span class="ssum-lbl">誤答</span></div>
+          <div class="ssum-item">${remDisp}<span class="ssum-lbl">残誤答</span></div>
+          <div class="ssum-item"><span class="ssum-val sm">${timeDisp}</span><span class="ssum-lbl">時間</span></div>
+          ${dc === 'partial' ? `<span class="sdot partial" title="残誤答あり"></span>` : ''}
+        </div>
+        <span class="schevron">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">実施日</label>
+            <input class="form-input" type="date" id="d-${s.code}" value="${rec?.date || today()}">
+          </div>
+          <div class="form-field">
+            <label class="form-label">誤答数</label>
+            <input class="form-input" type="number" id="e-${s.code}" min="0" value="${rec?.err ?? 0}">
+          </div>
+          <div class="form-field">
+            <label class="form-label">所要時間</label>
+            <input class="form-input" type="time" id="t-${s.code}" value="${rec?.time || ''}">
+          </div>
+          <div class="form-field">
+            <label class="form-label">最終残誤答</label>
+            <input class="form-input" type="number" id="r-${s.code}" min="0" value="${rec?.rem ?? 0}">
+          </div>
+        </div>
+        <button class="save-btn" onclick="saveRecord('${s.code}')">SAVE</button>
+        ${statusMsg}
+        ${history ? `<div class="history-row">${history}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Render: Settings ───
+function renderSettings() {
+  renderRoundListEl();
+  renderStatsEl();
+}
+
+function confirmDelete(idx) {
+  const btn = document.getElementById(`del-btn-${idx}`);
+  if (!btn) return;
+  if (btn.dataset.confirming === '1') {
+    deleteRound(idx);
+  } else {
+    btn.dataset.confirming = '1';
+    btn.textContent = '本当に削除';
+    btn.style.background = 'var(--red)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'var(--red)';
+    setTimeout(() => {
+      if (btn && btn.dataset.confirming === '1') {
+        btn.dataset.confirming = '';
+        btn.textContent = '削除';
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }
+    }, 2500);
+  }
+}
+
+
+function renderRoundListEl() {
+  const el = document.getElementById('roundList');
+  el.innerHTML = state.rounds.map((r, i) => {
+    const { done, total, avgErr } = getRoundStats(i);
+    const isActive = i === state.currentRound;
+    return `<div class="round-row ${isActive ? 'active-round' : ''}">
+      <span class="round-row-num">${i+1}</span>
+      <span class="round-row-name ${isActive?'is-active':''}">${r.name}</span>
+      ${isActive ? '<span class="active-badge">現在</span>' : ''}
+      <span class="round-row-stats">${done}/${total}<br><span style="color:var(--red);font-size:10px">err ${avgErr??'—'}</span></span>
+      <div class="round-row-actions">
+        ${!isActive ? `<button class="btn-sm primary" onclick="selectRound(${i})">選択</button>` : ''}
+        <button class="btn-sm danger" id="del-btn-${i}" onclick="confirmDelete(${i})">削除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderStatsEl() {
+  const { done, total, avgErr, avgRem } = getRoundStats(state.currentRound);
+  const rn = state.rounds[state.currentRound]?.name || '';
+  const pct = Math.round(done / total * 100);
+  document.getElementById('statsRows').innerHTML = `
+    <div class="info-row"><span class="info-row-label">対象周回</span><span class="info-row-value">${rn}</span></div>
+    <div class="info-row"><span class="info-row-label">完了セクション</span><span class="info-row-value">${done} / ${total}（${pct}%）</span></div>
+    <div class="info-row"><span class="info-row-label">平均誤答数</span><span class="info-row-value" style="color:var(--red)">${avgErr ?? '—'}</span></div>
+    <div class="info-row"><span class="info-row-label">平均残誤答</span><span class="info-row-value">${avgRem ?? '—'}</span></div>
+  `;
+}
+
+function renderSectionNav_inSettings() {} // placeholder
+
+function renderAll() {
+  renderHeader();
+  renderRoundPill();
+  renderSections();
+  if (state.currentScreen === 'settings') renderSettings();
+}
+
+// ─── Toast ───
+function showToast(msg, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (ok ? ' ok' : '');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── Init ───
+loadState();
+// Restore screen
+if (state.currentScreen && state.currentScreen !== 'sections') {
+  showScreen(state.currentScreen);
+} else {
+  showScreen('sections');
+}
+renderAll();
+setInterval(saveAll, 60000);
+</script>
+</body>
+</html>
