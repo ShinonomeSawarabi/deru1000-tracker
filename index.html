@@ -78,6 +78,7 @@ body {
 }
 .nav-btn.active { color: var(--accent); }
 .nav-btn svg { width: 22px; height: 22px; }
+a.nav-btn { text-decoration: none; }
 
 /* ── Header ── */
 .header {
@@ -594,12 +595,12 @@ body {
     </svg>
     SECTIONS
   </button>
-  <button class="nav-btn" id="nav-claude" onclick="openClaude()">
+  <a class="nav-btn" id="nav-claude" href="https://claude.ai/new" target="_blank" rel="noopener" onclick="copyClaudeMsg()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
     CLAUDE
-  </button>
+  </a>
   <button class="nav-btn" id="nav-settings" onclick="showScreen('settings')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"/>
@@ -923,21 +924,13 @@ function renderAll() {
 }
 
 // ─── Claude link ───
-function openClaude() {
+function copyClaudeMsg() {
   const msg = `次の文構造及び和訳を教えてください
 日本語で回答してください
 基本文法から学ぶ英語リーディング教本に記載されている内容をベースとした文構造の解説をお願いします。見つけることができない場合は、従来の解説でかまいません`;
   navigator.clipboard.writeText(msg).then(() => {
     showToast('質問文をコピーしました', true);
   }).catch(() => {});
-  // iOSアプリのUniversal Linkで開くため<a>タグを使用
-  const a = document.createElement('a');
-  a.href = 'https://claude.ai/new';
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
 }
 
 // ─── Toast ───
