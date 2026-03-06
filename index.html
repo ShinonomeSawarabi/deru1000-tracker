@@ -933,6 +933,7 @@ function openClaude() {
   // iOSアプリのUniversal Linkで開くため<a>タグを使用
   const a = document.createElement('a');
   a.href = 'https://claude.ai/new';
+  a.target = '_blank';
   a.rel = 'noopener';
   document.body.appendChild(a);
   a.click();
