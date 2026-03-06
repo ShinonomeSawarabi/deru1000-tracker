@@ -930,7 +930,13 @@ function openClaude() {
   navigator.clipboard.writeText(msg).then(() => {
     showToast('質問文をコピーしました', true);
   }).catch(() => {});
-  window.open('https://claude.ai/new', '_blank');
+  // iOSアプリのUniversal Linkで開くため<a>タグを使用
+  const a = document.createElement('a');
+  a.href = 'https://claude.ai/new';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 // ─── Toast ───
