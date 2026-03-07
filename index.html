@@ -320,9 +320,9 @@ a.nav-btn { text-decoration: none; }
 .save-btn {
   width: 100%;
   padding: 12px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
+  background: #fff;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
@@ -332,7 +332,7 @@ a.nav-btn { text-decoration: none; }
   transition: background 0.15s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
-.save-btn:active { transform: scale(0.98); }
+.save-btn:active { transform: scale(0.98); background: var(--accent-bg); }
 
 .studyplus-btn {
   display: flex;
