@@ -331,6 +331,30 @@ a.nav-btn { text-decoration: none; }
 }
 .save-btn:active { transform: scale(0.98); }
 
+.studyplus-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 11px;
+  background: #fff;
+  color: var(--green);
+  border: 1.5px solid var(--green);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-decoration: none;
+  margin-top: 8px;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+.studyplus-btn:active { transform: scale(0.98); background: var(--green-bg); }
+
 .status-msg {
   text-align: center;
   font-size: 11px;
@@ -847,6 +871,10 @@ function renderSections() {
           </div>
         </div>
         <button class="save-btn" onclick="saveRecord('${s.code}')">SAVE</button>
+        <a class="studyplus-btn" href="studyplus://" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          Studyplus で記録
+        </a>
         ${statusMsg}
         ${history ? `<div class="history-row">${history}</div>` : ''}
       </div>
