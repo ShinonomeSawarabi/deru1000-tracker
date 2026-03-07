@@ -775,6 +775,14 @@ function deleteRound(idx) {
   renderSettings();
 }
 
+// ─── Time select helpers ───
+function minsOptions(val) {
+  return Array.from({length: 61}, (_,i) => `<option value="${i}"${i==val?' selected':''}>${i}</option>`).join('');
+}
+function secsOptions(val) {
+  return [0,5,10,15,20,25,30,35,40,45,50,55].map(i => `<option value="${i}"${i==val?' selected':''}>${i}</option>`).join('');
+}
+
 // ─── Section record ───
 function saveRecord(code) {
   const round = state.rounds[state.currentRound];
@@ -885,9 +893,8 @@ function renderSections() {
         <span class="scode">${s.code}</span>
         <span class="srange">${s.range}</span>
         <div class="ssummary">
-          <div class="ssum-item">${errDisp}<span class="ssum-lbl">誤答</span></div>
+          <div class="ssum-item">${errDisp}<span class="ssum-lbl">誤答数</span></div>
           <div class="ssum-item">${remDisp}<span class="ssum-lbl">残誤答</span></div>
-          <div class="ssum-item"><span class="ssum-val sm">${timeDisp}</span><span class="ssum-lbl">時間</span></div>
           ${dc === 'partial' ? `<span class="sdot partial" title="残誤答あり"></span>` : ''}
         </div>
         <span class="schevron">▼</span>
@@ -905,8 +912,8 @@ function renderSections() {
           <div class="form-field">
             <label class="form-label">所要時間</label>
             <div class="time-inputs">
-              <input class="form-input" type="number" id="t-${s.code}" min="0" max="60" value="${rec?.time ?? ''}"><span class="time-unit">分</span>
-              <input class="form-input" type="number" id="ts-${s.code}" min="0" max="59" value="${rec?.timeSec ?? ''}"><span class="time-unit">秒</span>
+              <select class="form-input" id="t-${s.code}">${minsOptions(rec?.time ?? 0)}</select><span class="time-unit">分</span>
+              <select class="form-input" id="ts-${s.code}">${secsOptions(rec?.timeSec ?? 0)}</select><span class="time-unit">秒</span>
             </div>
           </div>
           <div class="form-field">
