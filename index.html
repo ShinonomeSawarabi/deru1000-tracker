@@ -361,6 +361,35 @@ a.nav-btn { text-decoration: none; }
 }
 .studyplus-btn:active { transform: scale(0.98); background: var(--green-bg); }
 
+/* ── Review checkboxes ── */
+.review-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.review-check-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.review-check-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.review-check-item .rc-sub {
+  font-size: 11px;
+  color: var(--text3);
+}
+
 .status-msg {
   text-align: center;
   font-size: 11px;
@@ -757,6 +786,9 @@ function saveRecord(code) {
     time:    document.getElementById(`t-${code}`).value,
     timeSec: document.getElementById(`ts-${code}`).value,
     rem:  parseInt(document.getElementById(`r-${code}`).value) || 0,
+    rev0: document.getElementById(`rv0-${code}`)?.checked || false,
+    rev1: document.getElementById(`rv1-${code}`)?.checked || false,
+    rev2: document.getElementById(`rv2-${code}`)?.checked || false,
     completed: prevCompleted,
   };
   saveAll();
@@ -881,6 +913,20 @@ function renderSections() {
             <label class="form-label">最終残誤答</label>
             <input class="form-input" type="number" id="r-${s.code}" min="0" value="${rec?.rem ?? 0}">
           </div>
+        </div>
+        <div class="review-checks">
+          <label class="review-check-item">
+            <input type="checkbox" id="rv0-${s.code}" ${rec?.rev0 ? 'checked' : ''}>
+            <span>全問振り返り</span>
+          </label>
+          <label class="review-check-item">
+            <input type="checkbox" id="rv1-${s.code}" ${rec?.rev1 ? 'checked' : ''}>
+            <span>復習1（誤答のみ）<span class="rc-sub">誤答したら付箋</span></span>
+          </label>
+          <label class="review-check-item">
+            <input type="checkbox" id="rv2-${s.code}" ${rec?.rev2 ? 'checked' : ''}>
+            <span>復習2（付箋のみ）<span class="rc-sub">誤答したら残扱い</span></span>
+          </label>
         </div>
         <button class="save-btn" onclick="saveRecord('${s.code}')">SAVE</button>
         <a class="studyplus-btn" href="studyplus://" target="_blank" rel="noopener">
