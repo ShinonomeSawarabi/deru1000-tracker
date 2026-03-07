@@ -1,0 +1,13 @@
+{
+  "name": "deru1000-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "htmlhint index.html",
+    "check:js": "node -e \"const fs=require('fs'),html=fs.readFileSync('index.html','utf8'),m=html.match(/<script>([\\s\\S]*?)<\\/script>/);if(!m){console.log('No script found');process.exit(0);}require('vm').compileFunction(m[1],[],{});console.log('JS syntax OK');\"",
+    "check": "npm run lint && npm run check:js"
+  },
+  "devDependencies": {
+    "htmlhint": "^1.1.4"
+  }
+}
