@@ -815,7 +815,7 @@ function renderSections() {
     const remDisp  = rec != null
       ? `<span class="ssum-val ${rec.rem===0?'green':''}">${rec.rem}</span>`
       : `<span class="ssum-val" style="color:var(--text3)">—</span>`;
-    const timeDisp = rec?.time || '—';
+    const timeDisp = rec?.time != null && rec.time !== '' ? `${rec.time}分` : '—';
 
     // Past rounds history
     const history = state.rounds.map((rnd, ri) => {
@@ -865,8 +865,8 @@ function renderSections() {
             <input class="form-input" type="number" id="e-${s.code}" min="0" value="${rec?.err ?? 0}">
           </div>
           <div class="form-field">
-            <label class="form-label">所要時間</label>
-            <input class="form-input" type="time" id="t-${s.code}" value="${rec?.time || ''}">
+            <label class="form-label">所要時間(分)</label>
+            <input class="form-input" type="number" id="t-${s.code}" min="0" max="60" value="${rec?.time ?? ''}">
           </div>
           <div class="form-field">
             <label class="form-label">最終残誤答</label>
