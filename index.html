@@ -293,6 +293,9 @@ a.nav-btn { text-decoration: none; }
   margin-bottom: 14px;
 }
 .form-field { display: flex; flex-direction: column; gap: 5px; }
+.time-inputs { display: flex; align-items: center; gap: 4px; }
+.time-inputs .form-input { flex: 1; }
+.time-unit { font-size: 12px; color: var(--text2); font-weight: 500; }
 .form-label {
   font-size: 11px;
   color: var(--text3);
@@ -751,7 +754,8 @@ function saveRecord(code) {
   round.records[code] = {
     date: document.getElementById(`d-${code}`).value,
     err:  parseInt(document.getElementById(`e-${code}`).value) || 0,
-    time: document.getElementById(`t-${code}`).value,
+    time:    document.getElementById(`t-${code}`).value,
+    timeSec: document.getElementById(`ts-${code}`).value,
     rem:  parseInt(document.getElementById(`r-${code}`).value) || 0,
     completed: prevCompleted,
   };
@@ -815,7 +819,9 @@ function renderSections() {
     const remDisp  = rec != null
       ? `<span class="ssum-val ${rec.rem===0?'green':''}">${rec.rem}</span>`
       : `<span class="ssum-val" style="color:var(--text3)">—</span>`;
-    const timeDisp = rec?.time || '—';
+    const timeDisp = rec?.time != null && rec.time !== ''
+      ? `${rec.time}分${rec.timeSec ? rec.timeSec + '秒' : ''}`
+      : '—';
 
     // Past rounds history
     const history = state.rounds.map((rnd, ri) => {
@@ -866,7 +872,10 @@ function renderSections() {
           </div>
           <div class="form-field">
             <label class="form-label">所要時間</label>
-            <input class="form-input" type="time" id="t-${s.code}" value="${rec?.time || ''}">
+            <div class="time-inputs">
+              <input class="form-input" type="number" id="t-${s.code}" min="0" max="60" value="${rec?.time ?? ''}"><span class="time-unit">分</span>
+              <input class="form-input" type="number" id="ts-${s.code}" min="0" max="59" value="${rec?.timeSec ?? ''}"><span class="time-unit">秒</span>
+            </div>
           </div>
           <div class="form-field">
             <label class="form-label">最終残誤答</label>
