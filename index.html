@@ -1336,7 +1336,9 @@ function renderAll() {
 function buildXText(code) {
   const s = SECTIONS.find(s => s.code === code);
   const range = s ? s.range : '';
-  return `今日もでる1000頑張りました\nセクション ${code}\n問題番号 ${range}\n\n#でる1000 #自作アプリ #Claude`;
+  const round = state.rounds[state.currentRound]?.name || '';
+  const done = SECTIONS.filter(s => isCompleted(s.code)).length;
+  return `今日もでる1000頑張りました\n${round}　${done}/${SECTIONS.length}\nセクション ${code}\n問題番号 ${range}\n\n#でる1000 #自作アプリ #Claude`;
 }
 
 function openTweetModal(code) {
