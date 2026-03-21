@@ -361,6 +361,30 @@ a.nav-btn { text-decoration: none; }
 }
 .studyplus-btn:active { transform: scale(0.98); background: var(--green-bg); }
 
+.x-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 11px;
+  background: #fff;
+  color: #000;
+  border: 1.5px solid #000;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-decoration: none;
+  margin-top: 8px;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+.x-btn:active { transform: scale(0.98); background: #f0f0f0; }
+
 /* ── Review checkboxes ── */
 .review-checks {
   display: flex;
@@ -1083,6 +1107,10 @@ function renderHome() {
         </label>
       </div>
       <button class="save-btn" onclick="saveRecord('${s.code}')">SAVE</button>
+      <a class="x-btn" href="${buildXUrl(s.code)}" target="_blank" rel="noopener" onclick="this.href=buildXUrl('${s.code}')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.258 5.625L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+        X に投稿
+      </a>
       <a class="studyplus-btn" href="studyplus://" target="_blank" rel="noopener">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         Studyplus で記録
@@ -1197,6 +1225,18 @@ function renderAll() {
 }
 
 // ─── Claude link ───
+function buildXUrl(code) {
+  const s = SECTIONS.find(s => s.code === code);
+  const rec = getRec(state.currentRound, code);
+  const round = state.rounds[state.currentRound]?.name || '';
+  const range = s ? s.range : '';
+  const errStr = rec != null ? `誤答${rec.err}問` : '';
+  const remStr = rec != null ? `残${rec.rem}問` : '';
+  const parts = [round, code, range, errStr, remStr].filter(Boolean);
+  const text = `でる1000 ${parts.join(' ')} #でる1000 #TOEIC`;
+  return `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
+}
+
 function copyClaudeMsg() {
   const msg = `次の文構造及び和訳を教えてください
 日本語で回答してください
