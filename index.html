@@ -1340,7 +1340,7 @@ function buildXText(code) {
   const done = SECTIONS.filter(s => isCompleted(s.code)).length;
   const d = new Date();
   const dateStr = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-  return `📅 ${dateStr}\n✏️ 今日もでる1000頑張りました\n\n📖 ${round}　${done}/${SECTIONS.length}\nセクション ${code}\n問題番号 ${range}\n\n#でる1000 #自作アプリ #Claude`;
+  return `📅 ${dateStr}\n✏️ 今日もでる1000頑張りました\n\n📖 ${round}　${done}/${SECTIONS.length}\nセクション ${code}\n問題番号 ${range}\n\n#でる1000 #でる1000トラッカー #自作アプリ #Claude`;
 }
 
 function openTweetModal(code) {
