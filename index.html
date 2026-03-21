@@ -514,6 +514,23 @@ a.nav-btn { text-decoration: none; }
 }
 .status-msg.saved { color: var(--green); }
 
+.section-status-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.section-status-label.solved {
+  background: color-mix(in srgb, var(--green) 15%, transparent);
+  color: var(--green);
+}
+.section-status-label.review {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+}
+
 .history-row {
   display: flex;
   gap: 8px;
@@ -1159,6 +1176,10 @@ function renderHome() {
   const statusMsg = rec
     ? `<div class="status-msg saved">✓ 記録済 — ${rec.date || ''}</div>`
     : `<div class="status-msg">未記録 — SAVEで保存</div>`;
+  const hasReview = rec && (rec.rev0 || rec.rev1 || rec.rev2);
+  const statusLabel = rec
+    ? `<span class="section-status-label ${hasReview ? 'review' : 'solved'}">${hasReview ? '復習' : '問題解きました'}</span>`
+    : '';
 
   document.getElementById('homeCard').innerHTML = `
   <div class="section-card-home ${isCompleted(s.code)?'completed':''}">
@@ -1200,6 +1221,7 @@ function renderHome() {
           <input class="form-input" type="number" id="r-${s.code}" min="0" value="${rec?.rem ?? 0}">
         </div>
       </div>
+      ${statusLabel}
       <div class="review-checks">
         <label class="review-check-item">
           <input type="checkbox" id="rv0-${s.code}" ${rec?.rev0 ? 'checked' : ''}>
@@ -1340,7 +1362,7 @@ function buildXText(code) {
   const done = SECTIONS.filter(s => isCompleted(s.code)).length;
   const d = new Date();
   const dateStr = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-  return `📅 ${dateStr}\n✏️ 今日もでる1000頑張りました\n\n📖 ${round}　${done}/${SECTIONS.length}\nセクション ${code}\n問題番号 ${range}\n\n#でる1000 #でる1000トラッカー #自作アプリ #Claude`;
+  return `📅 ${dateStr}\n✏️ 今日もでる1000頑張りました\n\n📖 ${round}　${done}/${SECTIONS.length}\nセクション ${code}\n問題番号 ${range}\n\n#でる1000 #自作アプリ #Claude`;
 }
 
 function openTweetModal(code) {
