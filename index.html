@@ -385,6 +385,98 @@ a.nav-btn { text-decoration: none; }
 }
 .x-btn:active { transform: scale(0.98); background: #f0f0f0; }
 
+/* ── Tweet modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 900;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 20px 16px 32px;
+  width: 100%;
+  max-width: 480px;
+  animation: slideUp 0.22s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tweet-textarea {
+  width: 100%;
+  min-height: 130px;
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text);
+  background: var(--surface2);
+  resize: vertical;
+  box-sizing: border-box;
+  line-height: 1.6;
+  outline: none;
+}
+.tweet-textarea:focus { border-color: var(--accent); background: #fff; }
+.tweet-char {
+  text-align: right;
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+}
+.tweet-char.over { color: var(--red); font-weight: 700; }
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.btn-modal-cancel {
+  flex: 1;
+  padding: 12px;
+  border: 1.5px solid var(--border2);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text2);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-tweet {
+  flex: 2;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #000;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-tweet:active { background: #222; }
+
 /* ── Review checkboxes ── */
 .review-checks {
   display: flex;
@@ -778,6 +870,22 @@ a.nav-btn { text-decoration: none; }
   </div>
 </div>
 
+<!-- Tweet modal -->
+<div class="modal-overlay" id="tweetModal" onclick="closeTweetModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-title">𝕏 Xに投稿</div>
+    <textarea class="tweet-textarea" id="tweetText" oninput="updateCharCount()"></textarea>
+    <div class="tweet-char" id="tweetCharCount">0 / 280</div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeTweetModal()">キャンセル</button>
+      <button class="btn-tweet" onclick="postToX()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.258 5.625L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+        ポスト
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Bottom Nav -->
 <nav class="bottom-nav">
   <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
@@ -1107,7 +1215,7 @@ function renderHome() {
         </label>
       </div>
       <button class="save-btn" onclick="saveRecord('${s.code}')">SAVE</button>
-      <button class="x-btn" onclick="postToX('${s.code}')">
+      <button class="x-btn" onclick="openTweetModal('${s.code}')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.258 5.625L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
         X に投稿
       </button>
@@ -1236,18 +1344,32 @@ function buildXText(code) {
   return `でる1000 ${parts.join(' ')} #でる1000 #TOEIC`;
 }
 
-function postToX(code) {
-  const text = buildXText(code);
-  const appUrl = 'twitter://post?message=' + encodeURIComponent(text);
-  const webUrl = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
-  let appOpened = false;
-  const onBlur = () => { appOpened = true; };
-  window.addEventListener('blur', onBlur, { once: true });
-  window.location.href = appUrl;
-  setTimeout(() => {
-    window.removeEventListener('blur', onBlur);
-    if (!appOpened) window.open(webUrl, '_blank');
-  }, 800);
+function openTweetModal(code) {
+  document.getElementById('tweetText').value = buildXText(code);
+  updateCharCount();
+  document.getElementById('tweetModal').classList.add('open');
+}
+
+function closeTweetModal() {
+  document.getElementById('tweetModal').classList.remove('open');
+}
+
+function closeTweetModalOutside(e) {
+  if (e.target === document.getElementById('tweetModal')) closeTweetModal();
+}
+
+function updateCharCount() {
+  const len = document.getElementById('tweetText').value.length;
+  const el = document.getElementById('tweetCharCount');
+  el.textContent = `${len} / 280`;
+  el.classList.toggle('over', len > 280);
+}
+
+function postToX() {
+  const text = document.getElementById('tweetText').value;
+  if (text.length > 280) { showToast('280文字以内にしてください'); return; }
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+  closeTweetModal();
 }
 
 function copyClaudeMsg() {
