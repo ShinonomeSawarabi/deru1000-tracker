@@ -1366,7 +1366,7 @@ function buildXText(code) {
   const rv1 = document.getElementById(`rv1-${code}`)?.checked;
   const rv2 = document.getElementById(`rv2-${code}`)?.checked;
   const status = rv2 ? '復習2回目' : rv1 ? '復習1回目' : rv0 ? '全問振り返り' : 'チェック&答え合わせ';
-  return `📅 ${dateStr}\n✏️ 今日もでる1000頑張りました\n\nステータス ${status}\n📖 ${round}　${done}/${SECTIONS.length}\nセクション ${code}\n問題番号 ${range}\n\n#でる1000 #自作アプリ #Claude`;
+  return `📖 ${round}　${code}\n問題番号 ${range}\n${status}\n\n#でる1000 #自作アプリ #Claude`;
 }
 
 function openTweetModal(code) {
